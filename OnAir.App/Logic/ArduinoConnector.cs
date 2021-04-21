@@ -48,7 +48,9 @@ namespace OnAir.App.Logic
             {
                 PortWrite(data);
 
-                var response = PortRead();
+                if (PortRead() != "OK")
+                {
+                }
             }
         }
 
@@ -82,10 +84,12 @@ namespace OnAir.App.Logic
 
                 var anyPort = listOfPorts.FirstOrDefault(c =>
                     name?.Contains(c, StringComparison.CurrentCultureIgnoreCase) ?? false);
+
                 if (!string.IsNullOrEmpty(name) &&
-                    !string.IsNullOrWhiteSpace(anyPort)
-                )
+                    !string.IsNullOrWhiteSpace(anyPort))
+                {
                     yield return (anyPort, $"{name} {desc} {deviceId}");
+                }
             }
         }
 

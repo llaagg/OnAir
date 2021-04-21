@@ -48,5 +48,19 @@ namespace OnAir.App
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
         }
+
+        private void notifyIcon1_Click(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+                this.WindowState = FormWindowState.Normal;
+
+            // Activate the form.
+            this.Activate();
+        }
+
+        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+
+        }
     }
 }
