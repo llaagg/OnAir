@@ -22,6 +22,20 @@ namespace OnAir.App.Logic
                 return true;
             }
 
+            if (port != null)
+            {
+                try
+                {
+                    port.Open();
+                    if (port.IsOpen)
+                        return true;
+                }
+                catch
+                {
+                    port = null;
+                }
+            }
+
             return false;
         }
 
@@ -38,14 +52,25 @@ namespace OnAir.App.Logic
         public void Send(string data = "1")
         {
             var port = GetPort();
-            if (port != null)
+            if (port != null && port.IsOpen)
             {
                 PortWrite(data);
-                //if (port != null && port.IsOpen)
-                //{
-                //    port.Close();
-                //}
+
+                var response = PortRead();
             }
+        }
+
+        private string PortRead()
+        {
+            try
+            {
+                return _port.ReadLine();
+            }
+            catch
+            {
+                return null;
+            }
+            
         }
 
         public static IEnumerable<(string port, string description)> GetComPorts()

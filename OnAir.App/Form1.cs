@@ -7,9 +7,10 @@ namespace OnAir.App
 {
     public partial class Form1 : Form
     {
-        private bool _isArduinoConnected;
+        private bool _isArduinoConnected=false;
 
-        public ArduinoConnector arduinoClient = new();
+        public ArduinoConnector arduinoClient = null;
+        private bool _isCameraUsed = false;
 
         public Form1()
         {
@@ -18,10 +19,12 @@ namespace OnAir.App
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            var isUsed = new CameraStateProvider().IsWebCamInUse();
-            if (this.arduinoClient.IsConnected())
+            _isCameraUsed= new CameraStateProvider().IsWebCamInUse();
+
+            this._isArduinoConnected = this.arduinoClient.IsConnected();
+            if (_isArduinoConnected)
             {
-                if(isUsed)
+                if(_isCameraUsed)
                     this.arduinoClient.On();
                 else
                 {
@@ -30,22 +33,21 @@ namespace OnAir.App
             }
 
             if (InvokeRequired) 
-                Invoke(new ParameterizedThreadStart(SetState), isUsed);
+                Invoke(new ThreadStart(SetState));
             else
-                SetState(isUsed);
+                SetState();
         }
 
-        private void SetState(object? obj)
+        private void SetState()
         {
-            var isUsed = (bool) obj;
-            checkBox1.Checked = isUsed;
 
-            textBox1.Text = $"Camera: {isUsed} Arduino {_isArduinoConnected}";
+            textBox1.Text = $"Camera: {_isCameraUsed} Arduino {_isArduinoConnected}";
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            _isArduinoConnected = arduinoClient.IsConnected();
+            arduinoClient = new ArduinoConnector();
+            _isArduinoConnected = arduinoClient?.IsConnected() ?? false ;
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)

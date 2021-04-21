@@ -17,7 +17,8 @@ namespace OnAir.App.Logic
                 {
                     using (var subKey = key.OpenSubKey(subKeyName))
                     {
-                        if (subKey.GetValueNames().Contains("LastUsedTimeStop"))
+                        var lastUsed = subKey.GetValueNames().Contains("LastUsedTimeStop");
+                        if (lastUsed)
                         {
                             var endTime = subKey.GetValue("LastUsedTimeStop") is long ? (long) subKey.GetValue("LastUsedTimeStop") : -1;
                             if (endTime <= 0)
