@@ -5,23 +5,25 @@ using OnAir.App.Logic;
 
 namespace OnAir.App
 {
-    public partial class Form1 : Form
+    public partial class StatusWindow : Form
     {
+
+        public ArduinoConnector arduinoClient = new ArduinoConnector();
+        private CameraStateProvider cameraState = new CameraStateProvider();
+
+        private bool _isCameraUsed = false;
         private bool _isArduinoConnected=false;
 
-        public ArduinoConnector arduinoClient = null;
-        private bool _isCameraUsed = false;
-
-        public Form1()
+        public StatusWindow()
         {
             InitializeComponent();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            _isCameraUsed= new CameraStateProvider().IsWebCamInUse();
-
+            this._isCameraUsed = cameraState.IsWebCamInUse();
             this._isArduinoConnected = this.arduinoClient.IsConnected();
+
             if (_isArduinoConnected)
             {
                 if(_isCameraUsed)
@@ -40,16 +42,9 @@ namespace OnAir.App
 
         private void SetState()
         {
-
-            textBox1.Text = $"Camera: {_isCameraUsed} Arduino {_isArduinoConnected}";
+            tbStatus.Text = $"Camera: {_isCameraUsed} Arduino {_isArduinoConnected}";
         }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            arduinoClient = new ArduinoConnector();
-            _isArduinoConnected = arduinoClient?.IsConnected() ?? false ;
-        }
-
+        
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
         }

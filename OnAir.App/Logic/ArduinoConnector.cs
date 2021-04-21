@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO.Ports;
+using System.Linq;
 using System.Management;
 
 namespace OnAir.App.Logic
@@ -11,19 +9,14 @@ namespace OnAir.App.Logic
     public class ArduinoConnector
     {
         ///http://www.wch.cn/download/CH341SER_ZIP.html
-
-        private static System.IO.Ports.SerialPort _port = null;
+        private static SerialPort _port;
 
         public bool IsConnected()
         {
             var port = GetPort();
-            if (port != null && port.IsOpen)
-            {
-                return true;
-            }
+            if (port != null && port.IsOpen) return true;
 
             if (port != null)
-            {
                 try
                 {
                     port.Open();
@@ -32,16 +25,15 @@ namespace OnAir.App.Logic
                 }
                 catch
                 {
-                    port = null;
+                    _port = null;
                 }
-            }
 
             return false;
         }
 
         public void On()
         {
-            Send("1");
+            Send();
         }
 
         public void Off()
@@ -70,67 +62,63 @@ namespace OnAir.App.Logic
             {
                 return null;
             }
-            
         }
 
         public static IEnumerable<(string port, string description)> GetComPorts()
         {
-            
-            ManagementScope connectionScope = new ManagementScope();
-            SelectQuery serialQuery = new SelectQuery("SELECT * FROM Win32_PnPEntity");
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher(connectionScope, serialQuery);
+            var connectionScope = new ManagementScope();
+            var serialQuery = new SelectQuery("SELECT * FROM Win32_PnPEntity");
+            var searcher = new ManagementObjectSearcher(connectionScope, serialQuery);
 
             var listOfPorts = SerialPort.GetPortNames();
 
             var devs = searcher.Get();
-            
+
             foreach (ManagementObject item in devs)
             {
-                string desc = item["Description"]?.ToString();
-                string deviceId = item["DeviceID"]?.ToString();
+                var desc = item["Description"]?.ToString();
+                var deviceId = item["DeviceID"]?.ToString();
                 var name = item["name"]?.ToString();
 
-                var anyPort = listOfPorts.FirstOrDefault(c => name?.Contains((string) c, StringComparison.CurrentCultureIgnoreCase) ?? false);
+                var anyPort = listOfPorts.FirstOrDefault(c =>
+                    name?.Contains(c, StringComparison.CurrentCultureIgnoreCase) ?? false);
                 if (!string.IsNullOrEmpty(name) &&
                     !string.IsNullOrWhiteSpace(anyPort)
-                    )
-                {
+                )
                     yield return (anyPort, $"{name} {desc} {deviceId}");
-                }
             }
         }
 
-        private static SerialPort GetPort(string portName= null)
+        private static SerialPort GetPort(string portName = null)
         {
-            if (_port != null)
-            {
-                return _port;
-            }
+            if (_port != null) return _port;
 
             if (portName == null)
             {
                 var ports = GetComPorts().ToList();
                 if (ports.Count == 1)
-                {
                     portName = ports[0].port;
-                }
                 else
-                {
                     return null;
-                }
             }
 
             _port = new SerialPort(portName, 9600);
+            _port.ReadTimeout = 2000;
             _port.Open();
             return _port;
         }
 
-        void PortWrite(string message)        
+        private void PortWrite(string message)
         {
             if (_port != null && _port.IsOpen)
-            {
-                _port.Write(message);
-            }
+                try
+                {
+                    _port.Write(message);
+                }
+                catch
+                {
+                    _port = null;
+                }
         }
     }
 }
