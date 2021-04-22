@@ -71,7 +71,6 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.Text = "On Air status";
-            this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
             this.ResumeLayout(false);
             this.PerformLayout();
 

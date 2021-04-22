@@ -51,11 +51,14 @@ namespace OnAir.App
 
         private void notifyIcon1_Click(object sender, EventArgs e)
         {
-            if (this.WindowState == FormWindowState.Minimized)
-                this.WindowState = FormWindowState.Normal;
-
-            // Activate the form.
-            this.Activate();
+            if (this.Visible)
+            {
+                this.Hide();
+            }
+            else
+            {
+                this.Show();
+            }
         }
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
