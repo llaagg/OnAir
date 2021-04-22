@@ -1,7 +1,9 @@
 # OnAir
 
+This will work on plain arduino (using on board led) or with external LED connected to pin 13 as described here
+[Arduino example](https://www.arduino.cc/en/Tutorial/BuiltInExamples/Blink)
 
-<code>
+```c
 int incomingByte = 0; 
 
 void setup() {
@@ -24,4 +26,11 @@ void loop() {
     Serial.println("OK");
   }
 }
-</code>
+```
+
+
+
+![My arduino](docs/blue.png)
+![My arduino](docs/yellow_on.png)
+![My arduino](docs/yellow_off.png)
+
