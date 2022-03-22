@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OnAir.App.Model;
+using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
@@ -10,6 +11,12 @@ namespace OnAir.App.Logic
     {
         ///http://www.wch.cn/download/CH341SER_ZIP.html
         private static SerialPort _port;
+        private string portName;
+
+        public ArduinoConnector(string portName)
+        {
+            this.portName = portName;
+        }
 
         public bool IsConnected()
         {
@@ -66,7 +73,7 @@ namespace OnAir.App.Logic
             }
         }
 
-        public static IEnumerable<(string port, string description)> GetComPorts()
+        public static IEnumerable<Port> GetComPorts()
         {
             var connectionScope = new ManagementScope();
             var serialQuery = new SelectQuery("SELECT * FROM Win32_PnPEntity");
@@ -88,23 +95,18 @@ namespace OnAir.App.Logic
                 if (!string.IsNullOrEmpty(name) &&
                     !string.IsNullOrWhiteSpace(anyPort))
                 {
-                    yield return (anyPort, $"{name} {desc} {deviceId}");
+                    yield return  new Port()
+                    {
+                        Name = anyPort,
+                        Description= $"{name} {desc} {deviceId}"
+                    } ;
                 }
             }
         }
 
-        private static SerialPort GetPort(string portName = null)
+        private SerialPort GetPort()
         {
             if (_port != null) return _port;
-
-            if (portName == null)
-            {
-                var ports = GetComPorts().ToList();
-                if (ports.Count == 1)
-                    portName = ports[0].port;
-                else
-                    return null;
-            }
 
             _port = new SerialPort(portName, 9600);
             _port.ReadTimeout = 2000;

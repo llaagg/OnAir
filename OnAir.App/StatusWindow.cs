@@ -2,17 +2,23 @@
 using System.Threading;
 using System.Windows.Forms;
 using OnAir.App.Logic;
+using System.Linq;
+using System.Collections.Generic;
+using OnAir.App.Model;
 
 namespace OnAir.App
 {
     public partial class StatusWindow : Form
     {
 
-        public ArduinoConnector arduinoClient = new ArduinoConnector();
+        public ArduinoConnector arduinoClient = null;
         private CameraStateProvider cameraState = new CameraStateProvider();
 
         private bool _isCameraUsed = false;
         private bool _isArduinoConnected=false;
+        private string selectPort;
+
+        public List<Port> Ports { get; private set; }
 
         public StatusWindow()
         {
@@ -21,23 +27,27 @@ namespace OnAir.App
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            this._isCameraUsed = cameraState.IsWebCamInUse();
-            this._isArduinoConnected = this.arduinoClient.IsConnected();
-
-            if (_isArduinoConnected)
+            if (this.selectPort != null)
             {
-                if(_isCameraUsed)
-                    this.arduinoClient.On();
-                else
-                {
-                    this.arduinoClient.Off();
-                }
-            }
+                this.arduinoClient = new ArduinoConnector(this.selectPort);
+                this._isCameraUsed = cameraState.IsWebCamInUse();
+                this._isArduinoConnected = this.arduinoClient.IsConnected();
 
-            if (InvokeRequired) 
-                Invoke(new ThreadStart(SetState));
-            else
-                SetState();
+                if (_isArduinoConnected)
+                {
+                    if (_isCameraUsed)
+                        this.arduinoClient.On();
+                    else
+                    {
+                        this.arduinoClient.Off();
+                    }
+                }
+
+                if (InvokeRequired)
+                    Invoke(new ThreadStart(SetState));
+                else
+                    SetState();
+            }
         }
 
         private void SetState()
@@ -64,6 +74,22 @@ namespace OnAir.App
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
 
+        }
+
+        private void StatusWindow_Load(object sender, EventArgs e)
+        {
+            this.Ports =
+                ArduinoConnector
+                .GetComPorts()
+                .ToList();
+
+            this.comboBox1.Items.AddRange(Ports.ToArray());
+            
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.selectPort = (comboBox1.SelectedItem as Port)?.Name;
         }
     }
 }
