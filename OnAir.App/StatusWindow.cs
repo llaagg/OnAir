@@ -90,6 +90,7 @@ namespace OnAir.App
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.selectPort = (comboBox1.SelectedItem as Port)?.Name;
+
         }
     }
 }
